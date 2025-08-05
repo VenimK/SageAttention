@@ -63,8 +63,7 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
-          method: network
-          linux-local-args: '["--toolkit"]'
+          method: local
           # Don't use sub-packages to avoid permission issues
           # sub-packages: '["nvcc", "cudart", "cublas", "cufft", "curand", "cusolver", "cusparse", "thrust", "nvrtc"]'
           
@@ -85,7 +84,7 @@ jobs:
           CIBW_TEST_SKIP: "*"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
           CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
-          CIBW_BUILD: "cp39-manylinux_x86_64"
+          CIBW_BUILD: "cp311-manylinux_x86_64"
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel simpleindex
