@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       # Install CUDA toolkit using the Jimver/cuda-toolkit action
       - name: Setup CUDA
