@@ -62,6 +62,7 @@ jobs:
           cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
           use-github-cache: false
           use-local-cache: false
+          sub-packages: ['nvcc', 'cudart', 'cublas', 'cufft', 'curand', 'cusolver', 'cusparse', 'thrust', 'nvrtc']
 
       - name: Build wheel
         shell: bash
@@ -108,6 +109,10 @@ jobs:
           
           # Pass CUDA environment to cibuildwheel
           export CIBW_ENVIRONMENT="CUDA_HOME=/usr/local/cuda-12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }} LD_LIBRARY_PATH=/usr/local/cuda-12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}/lib64:$LD_LIBRARY_PATH PATH=/usr/local/cuda-12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}/bin:$PATH TORCH_CUDA_ARCH_LIST='$TORCH_CUDA_ARCH_LIST' SAGEATTENTION_WHEEL_VERSION_SUFFIX='$SAGEATTENTION_WHEEL_VERSION_SUFFIX'"
+          
+          # Configure cibuildwheel to use the correct Python
+          export CIBW_BEFORE_BUILD="pip install -U pip setuptools wheel"
+          export CIBW_REPAIR_WHEEL_COMMAND=""
           
           cibuildwheel .
 
