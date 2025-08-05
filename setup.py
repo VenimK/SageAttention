@@ -25,7 +25,12 @@ if os.environ.get("CUDA_HOME") is None and os.path.exists("/usr/local/cuda"):
 
 from setuptools import setup, find_packages
 import torch
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
+from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+
+# Get CUDA_HOME from environment or default path
+CUDA_HOME = os.environ.get("CUDA_HOME")
+if CUDA_HOME is None and os.path.exists("/usr/local/cuda"):
+    CUDA_HOME = "/usr/local/cuda"
 
 # Compiler flags.
 if os.name == "nt":
