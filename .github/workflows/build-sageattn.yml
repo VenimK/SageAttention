@@ -57,13 +57,12 @@ jobs:
         with:
           python-version: '3.12'
 
-      - uses: Jimver/cuda-toolkit@v0.2.22
-        with:
-          cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
-          use-github-cache: false
-          use-local-cache: false
-          method: network
-          sub-packages: '["nvcc", "cudart", "cublas", "cufft", "curand", "cusolver", "cusparse", "thrust", "nvrtc"]'
+      # Use the default CUDA installation on the runner
+      - name: Setup CUDA
+        run: |
+          echo "CUDA_HOME=/usr/local/cuda" >> $GITHUB_ENV
+          echo "/usr/local/cuda/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Build wheel
         shell: bash
