@@ -57,11 +57,22 @@ jobs:
         with:
           python-version: '3.12'
 
-      # Use the default CUDA installation on the runner
+      # Install CUDA toolkit using the Jimver/cuda-toolkit action
       - name: Setup CUDA
+        uses: Jimver/cuda-toolkit@v0.2.11
+        id: cuda-toolkit
+        with:
+          cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
+          method: network
+          # Don't use sub-packages to avoid permission issues
+          # sub-packages: '["nvcc", "cudart", "cublas", "cufft", "curand", "cusolver", "cusparse", "thrust", "nvrtc"]'
+          
+      - name: Verify CUDA installation
         run: |
-          echo "CUDA_HOME=/usr/local/cuda" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          nvcc --version
+          echo "CUDA_HOME=${{ steps.cuda-toolkit.outputs.CUDA_HOME }}" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${{ steps.cuda-toolkit.outputs.LD_LIBRARY_PATH }}" >> $GITHUB_ENV
+          echo "PATH=${{ steps.cuda-toolkit.outputs.PATH }}" >> $GITHUB_PATH
 
       - name: Build wheel
         shell: bash
@@ -107,11 +118,11 @@ jobs:
           fi
           export CIBW_BUILD_VERBOSITY="1"
           
-          # Pass CUDA environment to cibuildwheel without modifying PATH
-          export CIBW_ENVIRONMENT="CUDA_HOME=/usr/local/cuda LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH TORCH_CUDA_ARCH_LIST='$TORCH_CUDA_ARCH_LIST' SAGEATTENTION_WHEEL_VERSION_SUFFIX='$SAGEATTENTION_WHEEL_VERSION_SUFFIX'"
+          # Pass CUDA environment to cibuildwheel
+          export CIBW_ENVIRONMENT="CUDA_HOME=$CUDA_HOME LD_LIBRARY_PATH=$LD_LIBRARY_PATH TORCH_CUDA_ARCH_LIST='$TORCH_CUDA_ARCH_LIST' SAGEATTENTION_WHEEL_VERSION_SUFFIX='$SAGEATTENTION_WHEEL_VERSION_SUFFIX'"
           
           # Configure cibuildwheel to use the correct Python and install PyTorch
-          export CIBW_BEFORE_BUILD="ln -sf /usr/local/cuda/bin/nvcc /usr/local/bin/nvcc && pip install -U pip setuptools wheel numpy torch==2.6.0"
+          export CIBW_BEFORE_BUILD="pip install -U pip setuptools wheel numpy torch==2.6.0"
           export CIBW_REPAIR_WHEEL_COMMAND=""
           
           # Skip the test phase to avoid Python detection issues
