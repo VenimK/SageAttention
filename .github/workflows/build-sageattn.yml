@@ -120,7 +120,8 @@ jobs:
           export CIBW_BUILD_VERBOSITY="1"
           
           # Pass CUDA environment to cibuildwheel
-          export CIBW_ENVIRONMENT="CUDA_HOME=$CUDA_HOME LD_LIBRARY_PATH=$LD_LIBRARY_PATH TORCH_CUDA_ARCH_LIST='$TORCH_CUDA_ARCH_LIST' SAGEATTENTION_WHEEL_VERSION_SUFFIX='$SAGEATTENTION_WHEEL_VERSION_SUFFIX'"
+          # Pass CUDA environment to cibuildwheel
+          export CIBW_ENVIRONMENT="CUDA_HOME=${{ steps.cuda-toolkit.outputs.CUDA_HOME }} LD_LIBRARY_PATH=${{ steps.cuda-toolkit.outputs.LD_LIBRARY_PATH }} TORCH_CUDA_ARCH_LIST='$TORCH_CUDA_ARCH_LIST' SAGEATTENTION_WHEEL_VERSION_SUFFIX='$SAGEATTENTION_WHEEL_VERSION_SUFFIX'"
           
           # Configure cibuildwheel to use the correct Python and install PyTorch
           # Use --no-cache-dir to avoid disk space issues
