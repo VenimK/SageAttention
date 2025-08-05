@@ -51,7 +51,7 @@ on:
 
 jobs:
   build-sageattn:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -63,18 +63,9 @@ jobs:
           use-github-cache: false
           use-local-cache: false
 
-      - uses: ilammy/msvc-dev-cmd@v1
-
       - name: Build wheel
-        shell: powershell
+        shell: bash
         run: |
-          # Get-ChildItem Env:
-          # (Get-WmiObject Win32_Processor).Name
-          # (Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB
-          # (Get-WmiObject Win32_VideoController).Name
-
-          # Get-Command -All python
-          # python --version
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel simpleindex
 
@@ -83,42 +74,37 @@ jobs:
           cd SageAttention
           git rev-parse HEAD
 
-          $Env:CUDA_MINOR_VERSION = "${{ inputs.cuda_minor }}"
-          $Env:TORCH_MINOR_VERSION = "${{ inputs.torch_minor }}"
-          $Env:TORCH_PATCH_VERSION = "${{ inputs.torch_patch }}"
-          $Env:TORCH_IS_NIGHTLY = "${{ inputs.torch_is_nightly }}"
+          export CUDA_MINOR_VERSION="${{ inputs.cuda_minor }}"
+          export TORCH_MINOR_VERSION="${{ inputs.torch_minor }}"
+          export TORCH_PATCH_VERSION="${{ inputs.torch_patch }}"
+          export TORCH_IS_NIGHTLY="${{ inputs.torch_is_nightly }}"
           python update_pyproject.py
 
-          Start-Process -NoNewWindow simpleindex simpleindex.toml
-          $Env:PIP_INDEX_URL = "http://127.0.0.1:8000"
+          simpleindex simpleindex.toml &
+          export PIP_INDEX_URL="http://127.0.0.1:8000"
 
-          $Env:DISTUTILS_USE_SDK = "1"
-          $Env:TORCH_CUDA_ARCH_LIST = "8.0 8.6 8.9 9.0 "
-          if ($Env:CUDA_MINOR_VERSION -gt "6")
-          {
-            $Env:TORCH_CUDA_ARCH_LIST += "12.0 "
-          }
-          $Env:TORCH_CUDA_ARCH_LIST += "${{ inputs.extra_cuda_arch }}"
-          $Env:SAGEATTENTION_WHEEL_VERSION_SUFFIX = "+cu12${{ inputs.cuda_minor }}torch2.${{ inputs.torch_minor }}.${{ inputs.torch_patch }}"
-          $Env:SAGEATTENTION_WHEEL_VERSION_SUFFIX += "${{ inputs.extra_wheel_version_suffix }}"
-          if ("${{ inputs.is_python_abi3 }}")
-          {
-            $Env:CIBW_BUILD = "{cp39-win_amd64,}"
-          }
+          ARCH_LIST="8.0 8.6 8.9 9.0"
+          if [[ "${{ inputs.cuda_minor }}" -gt "6" ]]; then
+            ARCH_LIST="$ARCH_LIST 12.0"
+          fi
+          if [[ -n "${{ inputs.extra_cuda_arch }}" ]]; then
+             ARCH_LIST="$ARCH_LIST ${{ inputs.extra_cuda_arch }}"
+          fi
+          export TORCH_CUDA_ARCH_LIST="$ARCH_LIST"
+
+          export SAGEATTENTION_WHEEL_VERSION_SUFFIX="+cu12${{ inputs.cuda_minor }}torch2.${{ inputs.torch_minor }}.${{ inputs.torch_patch }}"
+          export SAGEATTENTION_WHEEL_VERSION_SUFFIX="$SAGEATTENTION_WHEEL_VERSION_SUFFIX${{ inputs.extra_wheel_version_suffix }}"
+
+          if [[ -n "${{ inputs.is_python_abi3 }}" ]]; then
+            export CIBW_BUILD="{cp39-manylinux_x86_64,}"
           else
-          {
-            if ($Env:TORCH_MINOR_VERSION -gt "5")
-            {
-              $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
-            }
+            if [[ "${{ inputs.torch_minor }}" -gt "5" ]]; then
+              export CIBW_BUILD="{cp39-manylinux_x86_64,cp310-manylinux_x86_64,cp311-manylinux_x86_64,cp312-manylinux_x86_64,cp313-manylinux_x86_64}"
             else
-            {
-              $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64}"
-            }
-          }
-          $Env:CIBW_BUILD_VERBOSITY = "1"
-          # Sometimes torch may conflict with cibuildwheel's pinned dependency versions
-          # $Env:CIBW_DEPENDENCY_VERSIONS = "latest"
+              export CIBW_BUILD="{cp39-manylinux_x86_64,cp310-manylinux_x86_64,cp311-manylinux_x86_64,cp312-manylinux_x86_64}"
+            fi
+          fi
+          export CIBW_BUILD_VERBOSITY="1"
           cibuildwheel .
 
       - uses: actions/upload-artifact@v4
