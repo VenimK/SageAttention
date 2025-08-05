@@ -19,6 +19,10 @@ import subprocess
 from packaging.version import parse, Version
 import warnings
 
+# Set CUDA_HOME if not found
+if os.environ.get("CUDA_HOME") is None and os.path.exists("/usr/local/cuda"):
+    os.environ["CUDA_HOME"] = "/usr/local/cuda"
+
 from setuptools import setup, find_packages
 import torch
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
