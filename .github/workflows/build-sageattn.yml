@@ -77,6 +77,15 @@ jobs:
 
       - name: Build wheel
         shell: bash
+        env:
+          CIBW_BUILD_VERBOSITY: "1"
+          CIBW_ENVIRONMENT: "CUDA_HOME=${{ steps.cuda-toolkit.outputs.CUDA_HOME }} LD_LIBRARY_PATH=${{ steps.cuda-toolkit.outputs.LD_LIBRARY_PATH }} TORCH_CUDA_ARCH_LIST='${TORCH_CUDA_ARCH_LIST}' SAGEATTENTION_WHEEL_VERSION_SUFFIX='${SAGEATTENTION_WHEEL_VERSION_SUFFIX}'"
+          CIBW_BEFORE_BUILD: "pip install --no-cache-dir -U pip setuptools wheel numpy torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu"
+          CIBW_REPAIR_WHEEL_COMMAND: ""
+          CIBW_TEST_SKIP: "*"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+          CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
+          CIBW_BUILD: "cp39-manylinux_x86_64"
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel simpleindex
