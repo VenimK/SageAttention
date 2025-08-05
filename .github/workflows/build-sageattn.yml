@@ -75,8 +75,9 @@ jobs:
           git rev-parse HEAD
 
           export CUDA_MINOR_VERSION="${{ inputs.cuda_minor }}"
-          export TORCH_MINOR_VERSION="${{ inputs.torch_minor }}"
-          export TORCH_PATCH_VERSION="${{ inputs.torch_patch }}"
+          # Use PyTorch 2.6.0 which is available in PyPI
+          export TORCH_MINOR_VERSION="6"
+          export TORCH_PATCH_VERSION="0"
           export TORCH_IS_NIGHTLY="${{ inputs.torch_is_nightly }}"
           python update_pyproject.py
 
