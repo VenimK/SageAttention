@@ -62,7 +62,16 @@ jobs:
           cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
           use-github-cache: false
           use-local-cache: false
-          sub-packages: ['nvcc', 'cudart', 'cublas', 'cufft', 'curand', 'cusolver', 'cusparse', 'thrust', 'nvrtc']
+          sub-packages: |
+            nvcc
+            cudart
+            cublas
+            cufft
+            curand
+            cusolver
+            cusparse
+            thrust
+            nvrtc
 
       - name: Build wheel
         shell: bash
