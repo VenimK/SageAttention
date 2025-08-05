@@ -59,7 +59,7 @@ jobs:
 
       # Install CUDA toolkit using the Jimver/cuda-toolkit action
       - name: Setup CUDA
-        uses: Jimver/cuda-toolkit@v0.2.11
+        uses: Jimver/cuda-toolkit@v0.2.24
         id: cuda-toolkit
         with:
           cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
