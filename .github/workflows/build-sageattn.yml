@@ -77,7 +77,7 @@ jobs:
         with:
           cuda: 12.${{ inputs.cuda_minor }}.${{ inputs.cuda_patch }}
           method: network
-          linux-local-args: ["--toolkit"]
+          linux-local-args: "--toolkit"
           # Don't use sub-packages to avoid permission issues
           # sub-packages: '["nvcc", "cudart", "cublas", "cufft", "curand", "cusolver", "cusparse", "thrust", "nvrtc"]'
           
