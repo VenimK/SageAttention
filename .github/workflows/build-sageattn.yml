@@ -102,9 +102,6 @@ jobs:
           export TORCH_IS_NIGHTLY="${{ inputs.torch_is_nightly }}"
           python update_pyproject.py
 
-          simpleindex simpleindex.toml &
-          export PIP_INDEX_URL="http://127.0.0.1:8000"
-
           ARCH_LIST="8.0 8.6 8.9 9.0"
           if [[ "${{ inputs.cuda_minor }}" -gt "6" ]]; then
             ARCH_LIST="$ARCH_LIST 12.0"
