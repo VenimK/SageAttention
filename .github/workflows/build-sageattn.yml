@@ -124,7 +124,8 @@ jobs:
           
           # Configure cibuildwheel to use the correct Python and install PyTorch
           # Use --no-cache-dir to avoid disk space issues
-          export CIBW_BEFORE_BUILD="pip install --no-cache-dir -U pip setuptools wheel numpy torch==2.6.0"
+          # Use CPU-only PyTorch to save disk space
+          export CIBW_BEFORE_BUILD="pip install --no-cache-dir -U pip setuptools wheel numpy torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu"
           export CIBW_REPAIR_WHEEL_COMMAND=""
           
           # Skip the test phase to avoid Python detection issues
